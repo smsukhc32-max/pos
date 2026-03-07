@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ภาพรวม | ป้าณาน้ำผลไม้ปั่น</title>
+    <link rel="stylesheet" href="../css/base.css">
+    <link rel="stylesheet" href="../css/components.css">
+    <link rel="stylesheet" href="../css/pages.css">
+</head>
+
+<body>
+    <div class="app-container">
+        <div id="header"></div>
+        <main class="main-content">
+            <div class="page-header">
+                <div class="breadcrumb"><a href="dashboard.html">🏠 หน้าแรก</a> <span>/</span> ภาพรวม</div>
+                <h1>📊 ภาพรวมร้าน</h1>
+                <p>สรุปยอดขายและสถิติสำคัญ</p>
+            </div>
+            <div class="page-content">
+                <!-- Stats -->
+                <div class="stats-grid stagger">
+                    <div class="card stat-card animate-fade-in">
+                        <div class="stat-icon" style="background:var(--primary-bg);color:var(--primary)">💰</div>
+                        <div class="stat-info">
+                            <h3>รายได้วันนี้</h3>
+                            <div class="stat-value" id="statRevenue">฿0</div>
+                        </div>
+                    </div>
+                    <div class="card stat-card animate-fade-in">
+                        <div class="stat-icon" style="background:var(--secondary-bg);color:var(--secondary-dark)">📦
+                        </div>
+                        <div class="stat-info">
+                            <h3>ออเดอร์วันนี้</h3>
+                            <div class="stat-value" id="statOrders">0</div>
+                        </div>
+                    </div>
+                    <div class="card stat-card animate-fade-in">
+                        <div class="stat-icon" style="background:var(--success-bg);color:var(--success)">🍹</div>
+                        <div class="stat-info">
+                            <h3>สินค้าทั้งหมด</h3>
+                            <div class="stat-value" id="statProducts">0</div>
+                        </div>
+                    </div>
+                    <div class="card stat-card animate-fade-in">
+                        <div class="stat-icon" style="background:var(--info-bg);color:var(--info)">👥</div>
+                        <div class="stat-info">
+                            <h3>พนักงาน</h3>
+                            <div class="stat-value" id="statEmployees">0</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Summary stats -->
+                <div class="stats-grid" style="margin-top:var(--sp-lg)">
+                    <div class="card stat-card">
+                        <div class="stat-icon" style="background:var(--warning-bg);color:var(--warning)">📈</div>
+                        <div class="stat-info">
+                            <h3>รายได้ทั้งหมด</h3>
+                            <div class="stat-value" id="statTotalRevenue">฿0</div>
+                        </div>
+                    </div>
+                    <div class="card stat-card">
+                        <div class="stat-icon" style="background:var(--danger-bg);color:var(--danger)">📊</div>
+                        <div class="stat-info">
+                            <h3>ออเดอร์ทั้งหมด</h3>
+                            <div class="stat-value" id="statTotalOrders">0</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts -->
+                <div class="chart-grid">
+                    <div class="card chart-card animate-fade-in">
+                        <h3>📈 รายได้ 7 วันล่าสุด</h3>
+                        <div id="revenueChart"></div>
+                    </div>
+                    <div class="card chart-card animate-fade-in">
+                        <h3>🏆 สินค้าขายดี</h3>
+                        <div id="topProducts"></div>
+                    </div>
+                </div>
+
+                <!-- Recent Orders -->
+                <div class="recent-orders animate-fade-in">
+                    <h3>📋 ออเดอร์ล่าสุด</h3>
+                    <div class="card">
+                        <div class="table-wrapper">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>เลขที่</th>
+                                        <th>รายการ</th>
+                                        <th>ยอดรวม</th>
+                                        <th>การชำระ</th>
+                                        <th>สถานะ</th>
+                                        <th>วันที่</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="recentOrders"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="footer"></div>
+        </main>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase.js"></script>
+    <script src="../js/data.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/utils.js"></script>
+    <script src="../js/components.js"></script>
+    <script src="../js/app.js"></script>
+</body>
+
+</html>

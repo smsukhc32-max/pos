@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ประวัติการสั่งซื้อ | ป้าณาน้ำผลไม้ปั่น</title>
+    <link rel="stylesheet" href="../css/base.css">
+    <link rel="stylesheet" href="../css/components.css">
+    <link rel="stylesheet" href="../css/pages.css">
+</head>
+
+<body>
+    <div class="app-container">
+        <div id="header"></div>
+        <main class="main-content">
+            <div class="page-header">
+                <div>
+                    <div class="breadcrumb text-muted mb-xs">🏠 หน้าแรก <span>/</span> ประวัติ</div>
+                    <h1 class="text-primary-dark">📋 ประวัติการสั่งซื้อ</h1>
+                    <p>ดูรายการสั่งซื้อทั้งหมดของคุณ</p>
+                </div>
+            </div>
+            <div class="page-content">
+                <div id="customerOrdersList"></div>
+                <div id="footer"></div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Receipt Modal -->
+    <div class="modal-overlay" id="receiptModal">
+        <div class="modal receipt-modal">
+            <div class="modal-header no-print">
+                <h3>ใบเสร็จรับเงิน</h3>
+                <button class="modal-close" onclick="closeReceiptModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="receiptContent" class="receipt-paper">
+                    <!-- Receipt content injected by JS -->
+                </div>
+            </div>
+            <div class="modal-footer no-print flex justify-between items-center">
+                <button class="btn btn-outline" onclick="closeReceiptModal()">ปิด</button>
+                <div class="flex gap-sm">
+                    <button class="btn btn-outline" onclick="printReceipt()">🖨️ พิมพ์</button>
+                    <button class="btn btn-primary" onclick="downloadReceipt()">💾 บันทึกรูป</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <script src="../js/supabase.js"></script>
+    <script src="../js/data.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/utils.js"></script>
+    <script src="../js/components.js"></script>
+    <script src="../js/app.js"></script>
+</body>
+
+</html>

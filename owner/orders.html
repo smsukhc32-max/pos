@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ประวัติคำสั่งซื้อ | ป้าณาน้ำผลไม้ปั่น</title>
+    <link rel="stylesheet" href="../css/base.css">
+    <link rel="stylesheet" href="../css/components.css">
+    <link rel="stylesheet" href="../css/pages.css">
+</head>
+
+<body>
+    <div class="app-layout">
+        <div id="header"></div>
+        <main class="main-content">
+            <div class="page-header">
+                <div class="breadcrumb"><a href="dashboard.html">🏠 หน้าแรก</a> <span>/</span> ประวัติคำสั่งซื้อ</div>
+                <h1>📋 ประวัติคำสั่งซื้อ</h1>
+                <p>ดูรายการคำสั่งซื้อทั้งหมด</p>
+            </div>
+            <div class="page-content">
+                <div class="orders-filters mobile-column">
+                    <div class="search-box flex-1">
+                        <span class="search-icon">🔍</span>
+                        <input type="text" id="orderSearch" class="form-input"
+                            placeholder="ค้นหาด้วยเลขที่ หรือ ชื่อสินค้า..." style="padding-left:2.5rem">
+                    </div>
+                    <select id="orderStatus" class="form-input form-select w-full" style="min-width:160px">
+                        <option value="">ทุกสถานะ</option>
+                        <option value="completed">✅ เสร็จสิ้น</option>
+                        <option value="pending">⏳ รอดำเนินการ</option>
+                        <option value="cancelled">❌ ยกเลิก</option>
+                    </select>
+                    <select id="orderEmployee" class="form-input form-select w-full" style="min-width:160px">
+                        <option value="">พนักงานทั้งหมด</option>
+                    </select>
+                    <div class="ml-auto flex items-center gap-md text-sm text-secondary mobile-mt-md">
+                        <span>รวม: <strong id="ordersTotal">0</strong> รายการ</span>
+                        <span>รายได้: <strong id="ordersRevenue" class="text-primary">฿0</strong></span>
+                    </div>
+                </div>
+                <div class="card animate-fade-in">
+                    <div class="table-wrapper">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>เลขที่</th>
+                                    <th>รายการ</th>
+                                    <th>ยอดรวม</th>
+                                    <th>การชำระ</th>
+                                    <th>สถานะ</th>
+                                    <th>วันที่</th>
+                                    <th style="width:100px">บิล</th>
+                                </tr>
+                            </thead>
+                            <tbody id="ordersBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Receipt Modal -->
+            <div class="modal-overlay" id="receiptModal">
+                <div class="modal" style="max-width:420px">
+                    <div class="modal-header">
+                        <h3>🧾 ใบเสร็จ</h3>
+                        <button class="modal-close" onclick="closeReceiptModal()">✕</button>
+                    </div>
+                    <div id="receiptContent" class="p-0"></div>
+                    <div class="modal-footer flex gap-sm">
+                        <button class="btn btn-primary btn-block" onclick="downloadReceipt()">📥 บันทึกรูปภาพ</button>
+                        <button class="btn btn-outline btn-block" onclick="printReceipt()">🖨️ พิมพ์</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="footer"></div>
+        </main>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <script src="../js/supabase.js"></script>
+    <script src="../js/data.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/utils.js"></script>
+    <script src="../js/components.js"></script>
+    <script src="../js/app.js"></script>
+</body>
+
+</html>

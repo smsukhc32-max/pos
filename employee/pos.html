@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ขายสินค้า | พนักงาน</title>
+    <link rel="stylesheet" href="../css/base.css">
+    <link rel="stylesheet" href="../css/components.css">
+    <link rel="stylesheet" href="../css/pages.css">
+</head>
+
+<body>
+    <div class="app-container">
+        <div id="header"></div>
+        <main class="main-content">
+            <div class="page-header">
+                <div class="breadcrumb"><a href="dashboard.html">🏠 หน้าแรก</a> <span>/</span> ขายสินค้า</div>
+                <h1>🛒 ขายสินค้า</h1>
+                <p>เลือกสินค้าและจัดการคำสั่งซื้อ</p>
+            </div>
+            <div class="page-content">
+                <div class="pos-layout">
+                    <div class="pos-products">
+                        <div class="flex flex-wrap items-center gap-md mb-md">
+                            <div class="search-box flex-1" style="max-width:260px">
+                                <span class="search-icon">🔍</span>
+                                <input type="text" id="posSearch" class="form-input" placeholder="ค้นหาสินค้า..."
+                                    style="padding-left:2.5rem">
+                            </div>
+                            <div class="pos-categories">
+                                <button class="cat-btn active" data-cat="all">ทั้งหมด</button>
+                                <button class="cat-btn" data-cat="ผลไม้ปั่น">🍹 ผลไม้ปั่น</button>
+                                <button class="cat-btn" data-cat="น้ำคั้นสด">🍊 น้ำคั้นสด</button>
+                                <button class="cat-btn" data-cat="สมูทตี้">🫐 สมูทตี้</button>
+                            </div>
+                        </div>
+                        <div class="product-grid stagger" id="productGrid"></div>
+                    </div>
+                    <div class="cart-panel">
+                        <div class="cart-header">
+                            <h3>🛒 ตะกร้า (<span id="cartCount">0</span>)</h3>
+                            <button class="btn btn-sm btn-ghost" onclick="clearCart()">ล้างทั้งหมด</button>
+                        </div>
+                        <div class="cart-items" id="cartItems"></div>
+                        <div class="cart-summary">
+                            <div class="summary-row"><span>รวม</span><span id="cartSubtotal">฿0</span></div>
+                            <div class="summary-row total"><span>ยอดสุทธิ</span><span id="cartTotal">฿0</span></div>
+                            <button class="btn btn-primary btn-block btn-lg" onclick="goToPayment()">💳
+                                ชำระเงิน</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="footer"></div>
+        </main>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase.js"></script>
+    <script src="../js/data.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/utils.js"></script>
+    <script src="../js/components.js"></script>
+    <script src="../js/app.js"></script>
+</body>
+
+</html>

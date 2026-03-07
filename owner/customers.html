@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>จัดการลูกค้า | ป้าณาน้ำผลไม้ปั่น</title>
+    <link rel="stylesheet" href="../css/base.css">
+    <link rel="stylesheet" href="../css/components.css">
+    <link rel="stylesheet" href="../css/pages.css">
+</head>
+
+<body>
+    <div class="app-container">
+        <div id="header"></div>
+        <main class="main-content">
+            <div class="page-header">
+                <div class="breadcrumb"><a href="dashboard.html">🏠 หน้าแรก</a> <span>/</span> จัดการลูกค้า</div>
+                <h1>👥 จัดการลูกค้า</h1>
+                <p>ดูข้อมูลสมาชิกและลูกค้าของร้าน</p>
+            </div>
+            <div class="page-content">
+                <div class="products-header">
+                    <div class="search-box">
+                        <span class="search-icon">🔍</span>
+                        <input type="text" id="customerSearch" class="form-input"
+                            placeholder="ค้นหาชื่อ, อีเมล หรือเบอร์โทร..." style="padding-left:2.5rem">
+                    </div>
+                    <button class="btn btn-primary" onclick="openCustomerModal()">✚ เพิ่มลูกค้าใหม่</button>
+                </div>
+                <div class="card animate-fade-in">
+                    <div class="table-wrapper">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>ชื่อ-นามสกุล</th>
+                                    <th>อีเมล</th>
+                                    <th>เบอร์โทร</th>
+                                    <th>วันที่สมัคร</th>
+                                    <th style="width:100px">จัดการ</th>
+                                </tr>
+                            </thead>
+                            <tbody id="customersBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div id="footer"></div>
+        </main>
+    </div>
+
+    <!-- Edit Customer Modal (If needed in the future) -->
+    <div class="modal-overlay" id="customerModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>แก้ไขข้อมูลลูกค้า</h3>
+                <button class="modal-close" onclick="closeCustomerModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="custForm" onsubmit="event.preventDefault();saveCustomer()">
+                    <input type="hidden" id="custId">
+                    <div class="form-group">
+                        <label for="custName">ชื่อ-นามสกุล</label>
+                        <input type="text" id="custName" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="custUsername">ชื่อผู้ใช้ (Username)</label>
+                        <input type="text" id="custUsername" class="form-input" placeholder="สำหรับเข้าสู่ระบบ">
+                    </div>
+                    <div class="form-group">
+                        <label for="custPassword" id="custPasswordLabel">รหัสผ่าน</label>
+                        <input type="password" id="custPassword" class="form-input" placeholder="รหัสผ่านเข้าสู่ระบบ">
+                    </div>
+                    <div class="form-group">
+                        <label for="custEmail">อีเมล</label>
+                        <input type="email" id="custEmail" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label for="custPhone">เบอร์โทรศัพท์</label>
+                        <input type="tel" id="custPhone" class="form-input">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeCustomerModal()">ยกเลิก</button>
+                <button class="btn btn-primary" onclick="saveCustomer()">💾 บันทึก</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Customer Orders Modal -->
+    <div class="modal-overlay" id="customerOrdersModal">
+        <div class="modal" style="max-width:800px">
+            <div class="modal-header">
+                <h3>📋 ประวัติการสั่งซื้อ: <span id="custOrdersName" style="color:var(--primary)"></span></h3>
+                <button class="modal-close" onclick="closeCustomerOrdersModal()">&times;</button>
+            </div>
+            <div class="modal-body" style="padding:0">
+                <div class="table-wrapper" style="border:none;border-radius:0">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>เลขที่</th>
+                                <th>รายการ</th>
+                                <th>ยอดรวม</th>
+                                <th>รหัสชำระ</th>
+                                <th>วันที่</th>
+                                <th>สถานะ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="custOrdersBody"></tbody>
+                    </table>
+                </div>
+                <div id="custOrdersEmpty" class="text-center text-muted" style="padding:2rem;display:none">
+                    <div style="font-size:2rem;margin-bottom:.5rem">🛒</div>
+                    ไม่พบข้อมูลสั่งซื้อ
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase.js"></script>
+    <script src="../js/data.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/utils.js"></script>
+    <script src="../js/components.js"></script>
+    <script src="../js/app.js"></script>
+</body>
+
+</html>
