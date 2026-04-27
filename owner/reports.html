@@ -11,7 +11,7 @@
 </head>
 
 <body>
-    <div class="app-layout">
+    <div class="app-container">
         <div id="header"></div>
         <main class="main-content">
             <div class="page-header">
@@ -58,6 +58,11 @@
                                 </select>
                                 <select id="reportYear" class="form-select"
                                     style="width:100px;padding:.25rem .5rem;font-size:var(--font-xs)"></select>
+                            </div>
+                            <div class="flex items-center gap-xs">
+                                <span class="text-xs text-muted">หรือ+เลือกวันที่:</span>
+                                <input type="date" id="reportDate" class="form-input"
+                                    style="width:150px;padding:.25rem .5rem;font-size:var(--font-xs)">
                             </div>
                         </div>
                     </div>

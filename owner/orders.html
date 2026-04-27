@@ -11,7 +11,7 @@
 </head>
 
 <body>
-    <div class="app-layout">
+    <div class="app-container">
         <div id="header"></div>
         <main class="main-content">
             <div class="page-header">
@@ -21,20 +21,24 @@
             </div>
             <div class="page-content">
                 <div class="orders-filters mobile-column">
-                    <div class="search-box flex-1">
+                    <div class="search-box flex-1" style="max-width:300px">
                         <span class="search-icon">🔍</span>
-                        <input type="text" id="orderSearch" class="form-input"
-                            placeholder="ค้นหาด้วยเลขที่ หรือ ชื่อสินค้า..." style="padding-left:2.5rem">
+                        <input type="text" id="orderSearch" class="form-input form-input-sm" placeholder="ค้นหา..."
+                            style="padding-left:2.25rem" autocomplete="off" spellcheck="false">
                     </div>
-                    <select id="orderStatus" class="form-input form-select w-full" style="min-width:160px">
+                    <select id="orderStatus" class="form-input form-input-sm form-select w-full"
+                        style="min-width:140px;width:auto">
                         <option value="">ทุกสถานะ</option>
                         <option value="completed">✅ เสร็จสิ้น</option>
                         <option value="pending">⏳ รอดำเนินการ</option>
                         <option value="cancelled">❌ ยกเลิก</option>
                     </select>
-                    <select id="orderEmployee" class="form-input form-select w-full" style="min-width:160px">
+                    <select id="orderEmployee" class="form-input form-input-sm form-select w-full"
+                        style="min-width:140px;width:auto">
                         <option value="">พนักงานทั้งหมด</option>
                     </select>
+                    <input type="date" id="orderDate" class="form-input form-input-sm w-full"
+                        style="min-width:140px;width:auto">
                     <div class="ml-auto flex items-center gap-md text-sm text-secondary mobile-mt-md">
                         <span>รวม: <strong id="ordersTotal">0</strong> รายการ</span>
                         <span>รายได้: <strong id="ordersRevenue" class="text-primary">฿0</strong></span>

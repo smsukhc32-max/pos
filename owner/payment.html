@@ -11,7 +11,7 @@
 </head>
 
 <body>
-    <div class="app-layout">
+    <div class="app-container">
         <div id="header"></div>
         <main class="main-content">
             <div class="page-header">
@@ -60,6 +60,11 @@
                             <p style="margin-top:1rem;font-size:1.3rem;font-weight:700;color:var(--primary)"
                                 id="qrAmount"></p>
                             <p style="color:var(--text-muted);font-size:.85rem" id="qrPromptpayId"></p>
+                            <div class="form-group mt-md text-left">
+                                <label for="slipUpload">📸 แนบสลิปโอนเงิน (ถ้ามี)</label>
+                                <input type="file" id="slipUpload" class="form-input" accept="image/*"
+                                    style="padding: .5rem">
+                            </div>
                         </div>
                     </div>
                     <!-- Receipt -->

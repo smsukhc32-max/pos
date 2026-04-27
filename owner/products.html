@@ -11,7 +11,7 @@
 </head>
 
 <body>
-    <div class="app-layout">
+    <div class="app-container">
         <div id="header"></div>
         <main class="main-content">
             <div class="page-header">
@@ -35,7 +35,6 @@
                                 <tr>
                                     <th style="width:50px"></th>
                                     <th>ชื่อสินค้า</th>
-                                    <th>หมวดหมู่</th>
                                     <th>ราคา</th>
                                     <th>สถานะ</th>
                                     <th style="width:160px">จัดการ</th>
@@ -60,8 +59,15 @@
             <div class="modal-body">
                 <form id="productForm" onsubmit="event.preventDefault();saveProduct()">
                     <div class="form-group">
-                        <label for="pEmoji">ไอคอน Emoji</label>
-                        <input type="text" id="pEmoji" class="form-input" value="🍹" placeholder="เลือก emoji">
+                        <label>รูปภาพสินค้า</label>
+                        <div style="display:flex; gap:1rem; align-items:center;">
+                            <img id="pImgPreview" src=""
+                                style="width:60px; height:60px; object-fit:cover; border-radius:8px; display:none; border: 1px solid var(--border);">
+                            <div id="pEmojiPreview" style="font-size:3rem;">🍹</div>
+                            <input type="file" id="pImgUpload" class="form-input" accept="image/*" style="flex:1"
+                                onchange="previewProductImage(this)">
+                            <input type="hidden" id="pEmoji" value="🍹">
+                        </div>
                     </div>
                     <div class="form-group">
                         <label for="pName">ชื่อสินค้า</label>
@@ -71,14 +77,7 @@
                         <label for="pPrice">ราคา (บาท)</label>
                         <input type="number" id="pPrice" class="form-input" placeholder="0" required min="1">
                     </div>
-                    <div class="form-group">
-                        <label for="pCategory">หมวดหมู่</label>
-                        <select id="pCategory" class="form-input form-select">
-                            <option value="ผลไม้ปั่น">🍹 ผลไม้ปั่น</option>
-                            <option value="น้ำคั้นสด">🍊 น้ำคั้นสด</option>
-                            <option value="สมูทตี้">🫐 สมูทตี้</option>
-                        </select>
-                    </div>
+
                     <div class="form-group">
                         <label for="pDesc">รายละเอียด</label>
                         <input type="text" id="pDesc" class="form-input" placeholder="คำอธิบายสั้นๆ">

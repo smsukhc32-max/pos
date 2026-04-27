@@ -63,7 +63,7 @@ function initLoginPage() {
     e.preventDefault();
     const btn = form.querySelector('button[type="submit"]');
     btn.disabled = true; btn.textContent = 'กำลังเข้าสู่ระบบ...';
-    const username = document.getElementById('username').value.trim();
+    const username = document.getElementById('username').value.trim().toLowerCase();
     const password = document.getElementById('password').value;
     const result = await Auth.login(username, password);
     if (!result.success) { showToast(result.message, 'error'); btn.disabled = false; btn.textContent = 'เข้าสู่ระบบ'; return; }
@@ -71,6 +71,33 @@ function initLoginPage() {
     const roleRedirect = { owner: 'owner/dashboard.html', employee: 'employee/dashboard.html', customer: 'customer/menu.html' };
     setTimeout(() => { window.location.href = roleRedirect[result.user.role] || 'index.html'; }, 600);
   });
+
+  renderProductShowcase();
+}
+
+async function renderProductShowcase() {
+  let allProducts = await DataStore.getProducts();
+  const products = allProducts.filter(p => p.status === 'active');
+  const showcase = document.getElementById('productShowcase');
+  if (!showcase) return;
+
+  // Auto-update first 4 active products to use the generated images if they have none
+  const demoImages = ['assets/orange.png', 'assets/strawberry.png', 'assets/mango.png', 'assets/kiwi.png'];
+  for (let i = 0; i < Math.min(products.length, 4); i++) {
+    if (!products[i].emoji?.includes('.')) {
+      await DataStore.updateProduct(products[i].id, { emoji: demoImages[i] });
+      products[i].emoji = demoImages[i];
+    }
+  }
+
+  const featured = products.slice(0, 4); // Show first 4 products
+  showcase.innerHTML = featured.map(p => `
+    <div class="showcase-item">
+      <div class="showcase-emoji">${getProductMedia(p.emoji)}</div>
+      <div class="showcase-name">${p.name}</div>
+      <div class="showcase-price">${formatCurrency(p.price)}</div>
+    </div>
+  `).join('');
 }
 
 /* ===== Register Page ===== */
@@ -83,10 +110,11 @@ function initRegisterPage() {
     btn.disabled = true; btn.textContent = 'กำลังสมัครสมาชิก...';
     const data = {
       name: document.getElementById('regName').value.trim(),
-      username: document.getElementById('regUsername').value.trim(),
+      username: document.getElementById('regUsername').value.trim().toLowerCase(),
       password: document.getElementById('regPassword').value,
       email: document.getElementById('regEmail').value.trim(),
       phone: document.getElementById('regPhone').value.trim(),
+      line_id: document.getElementById('regLine').value.trim(),
       role: 'customer'
     };
     if (data.password !== document.getElementById('regConfirm').value) { showToast('รหัสผ่านไม่ตรงกัน', 'error'); btn.disabled = false; btn.textContent = 'สมัครสมาชิก'; return; }
@@ -166,7 +194,7 @@ async function initEmployeeDashboard() {
   recentEl.innerHTML = recent.map(o => `
     <tr>
       <td><strong>${o.id}</strong></td>
-      <td>${o.items.map(i => (i.emoji || '') + ' ' + i.name).join(', ')}</td>
+      <td>${o.items.map(i => (getProductMedia(i.emoji, true)) + ' ' + i.name).join(', ')}</td>
       <td>${formatCurrency(o.total)}</td>
       <td>${statusBadge(o.status)}</td>
       <td>${formatDate(o.createdAt)}</td>
@@ -209,7 +237,7 @@ function renderPOSProducts(category, search) {
   const grid = document.getElementById('productGrid');
   grid.innerHTML = products.map(p => `
     <div class="card product-card animate-scale-in" onclick="addToCart('${p.id}')">
-      <div class="product-img">${p.emoji || '🍹'}</div>
+      <div class="product-img">${getProductMedia(p.emoji)}</div>
       <div class="product-name">${p.name}</div>
       <div class="product-price">${formatCurrency(p.price)}</div>
     </div>
@@ -269,14 +297,14 @@ function renderCart() {
 
   itemsEl.innerHTML = cart.map(i => `
     <div class="cart-item">
-      <div class="item-img">${i.emoji || '🍹'}</div>
+      <div class="item-img">${getProductMedia(i.emoji)}</div>
       <div class="item-details">
         <div class="item-name">${i.name}</div>
         <div class="item-price">${formatCurrency(i.price)}</div>
       </div>
       <div class="item-qty">
         <button onclick="updateCartQty('${i.productId}', -1)">−</button>
-        <span>${i.qty}</span>
+        <span onclick="promptQty('${i.productId}', ${i.qty})">${i.qty}</span>
         <button onclick="updateCartQty('${i.productId}', 1)">+</button>
       </div>
       <button class="item-remove" onclick="removeCartItem('${i.productId}')">✕</button>
@@ -325,7 +353,7 @@ function renderPaymentSummary() {
 
   if (listEl) listEl.innerHTML = cart.map(i => `
     <div class="order-item-row">
-      <span>${i.emoji || ''} ${i.name} × ${i.qty}</span>
+      <span>${getProductMedia(i.emoji, true)} ${i.name} × ${i.qty}</span>
       <strong>${formatCurrency(i.price * i.qty)}</strong>
     </div>
   `).join('');
@@ -367,6 +395,23 @@ async function processPayment() {
     return;
   }
 
+  const slipFile = document.getElementById('slipUpload')?.files?.[0];
+  let slipUrl = null;
+
+  if (slipFile) {
+    btn.disabled = true; btn.textContent = 'กำลังอัปโหลดสลิป...';
+    const fileExt = slipFile.name.split('.').pop();
+    const fileName = `${Date.now()}.${fileExt}`;
+    const { data: uploadData, error: uploadError } = await db.storage.from('slips').upload(fileName, slipFile);
+    if (uploadError) {
+      showToast('อัปโหลดสลิปไม่สำเร็จ: ' + uploadError.message, 'error');
+      btn.disabled = false; btn.textContent = '✅ ยืนยันชำระเงิน';
+      return;
+    }
+    const { data: publicUrl } = db.storage.from('slips').getPublicUrl(fileName);
+    slipUrl = publicUrl.publicUrl;
+  }
+
   try {
     const user = await Auth.getCurrentUser();
     if (!user) {
@@ -381,7 +426,8 @@ async function processPayment() {
       paymentMethod: paymentType,
       status: 'pending',
       employeeId: user.id,
-      customerId: null
+      customerId: null,
+      slip_url: slipUrl
     });
 
     if (!order) {
@@ -393,6 +439,13 @@ async function processPayment() {
 
     cart = [];
     sessionStorage.removeItem('pos_cart');
+
+    // Clear the slip upload input
+    const slipInput = document.getElementById('slipUpload');
+    if (slipInput) slipInput.value = '';
+    const slipCanvas = document.getElementById('slipPreviewCanvas');
+    if (slipCanvas) slipCanvas.innerHTML = '';
+
     showToast(`ชำระเงินสำเร็จ! #${order.id}`, 'success');
 
 
@@ -434,6 +487,12 @@ async function initOrders() {
     empFilter.addEventListener('change', () => renderOrdersTable());
   }
 
+  const dateFilter = document.getElementById('orderDate');
+  if (dateFilter) {
+    // dateFilter.value = new Date().toISOString().split('T')[0]; // Remove default date to allow search across all dates
+    dateFilter.addEventListener('change', () => renderOrdersTable());
+  }
+
   await renderOrdersTable();
   const search = document.getElementById('orderSearch');
   if (search) search.addEventListener('input', debounce(() => renderOrdersTable()));
@@ -443,13 +502,24 @@ async function initOrders() {
 
 async function renderOrdersTable() {
   let orders = await DataStore.getOrders();
-  const search = document.getElementById('orderSearch')?.value?.toLowerCase();
+  let search = document.getElementById('orderSearch')?.value?.toLowerCase() || '';
+  if (search.startsWith('#')) search = search.substring(1); // Support searching with # prefix
   const status = document.getElementById('orderStatus')?.value;
   const empId = document.getElementById('orderEmployee')?.value;
 
-  if (search) orders = orders.filter(o => o.id.toLowerCase().includes(search) || o.items.some(i => i.name.toLowerCase().includes(search)));
+  if (search) {
+    orders = orders.filter(o =>
+      String(o.id).toLowerCase().includes(search) ||
+      o.items.some(i => i.name.toLowerCase().includes(search))
+    );
+  }
   if (status) orders = orders.filter(o => o.status === status);
   if (empId) orders = orders.filter(o => (o.employeeId || o.employee_id) === empId);
+
+  const filterDate = document.getElementById('orderDate')?.value;
+  if (filterDate) {
+    orders = orders.filter(o => new Date(o.createdAt).toISOString().split('T')[0] === filterDate);
+  }
 
   const tbody = document.getElementById('ordersBody');
   tbody.innerHTML = orders.map(o => {
@@ -464,7 +534,7 @@ async function renderOrdersTable() {
     return `
     <tr>
       <td><strong>${o.id}</strong>${customerStr}${empStr}</td>
-      <td>${o.items.map(i => `${i.emoji || ''} ${i.name} ×${i.qty}`).join('<br>')}</td>
+      <td>${o.items.map(i => `${getProductMedia(i.emoji, true)} ${i.name} ×${i.qty}`).join('<br>')}</td>
       <td>${formatCurrency(o.total)}</td>
       <td>${paymentMethodLabel(o.payment_method || o.paymentMethod)}</td>
       <td>
@@ -476,7 +546,10 @@ async function renderOrdersTable() {
       </td>
       <td>${formatDate(o.createdAt)}</td>
       <td>
-        <button class="btn btn-sm btn-outline" onclick="openReceiptModal('${o.id}')">🧾 ดูบิล</button>
+        <div style="display:flex;gap:.25rem">
+          <button class="btn btn-sm btn-outline" onclick="openReceiptModal('${o.id}')">🧾 บิล</button>
+          ${o.slip_url ? `<button class="btn btn-sm btn-secondary" onclick="viewSlip('${o.slip_url}')">🖼️ สลิป</button>` : ''}
+        </div>
       </td>
     </tr>
     `;
@@ -509,9 +582,8 @@ async function renderProductsTable() {
   const tbody = document.getElementById('productsBody');
   tbody.innerHTML = products.map(p => `
     <tr>
-      <td>${p.emoji || '🍹'}</td>
+      <td>${getProductMedia(p.emoji, true)}</td>
       <td><strong>${p.name}</strong><br><small style="color:var(--text-muted)">${p.description || ''}</small></td>
-      <td><span class="badge badge-primary">${p.category}</span></td>
       <td><strong>${formatCurrency(p.price)}</strong></td>
       <td>${p.status === 'active' ? '<span class="badge badge-success">ขายอยู่</span>' : '<span class="badge badge-danger">ปิด</span>'}</td>
       <td class="actions">
@@ -528,7 +600,6 @@ async function openProductModal(product) {
   document.getElementById('modalTitle').textContent = product ? 'แก้ไขสินค้า' : 'เพิ่มสินค้าใหม่';
   document.getElementById('pName').value = product?.name || '';
   document.getElementById('pPrice').value = product?.price || '';
-  document.getElementById('pCategory').value = product?.category || 'ผลไม้ปั่น';
   document.getElementById('pEmoji').value = product?.emoji || '🍹';
   document.getElementById('pDesc').value = product?.description || '';
   document.getElementById('pStatus').value = product?.status || 'active';
@@ -540,27 +611,81 @@ function closeProductModal() {
   document.getElementById('productModal').classList.remove('active');
 }
 
+
+function previewProductImage(input) {
+  const preview = document.getElementById('pImgPreview');
+  const emojiPreview = document.getElementById('pEmojiPreview');
+  if (input.files && input.files[0]) {
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      preview.src = e.target.result;
+      preview.style.display = 'block';
+      emojiPreview.style.display = 'none';
+    };
+    reader.readAsDataURL(input.files[0]);
+  } else {
+    preview.style.display = 'none';
+    emojiPreview.style.display = 'block';
+  }
+}
+
 async function editProduct(id) {
   const product = await DataStore.getProduct(id);
   openProductModal(product);
+
+  const preview = document.getElementById('pImgPreview');
+  const emojiPreview = document.getElementById('pEmojiPreview');
+  const emojiVal = product?.emoji || '🍹';
+  if (emojiVal.startsWith('http') || emojiVal.startsWith('/') || emojiVal.startsWith('.')) {
+    preview.src = emojiVal;
+    preview.style.display = 'block';
+    emojiPreview.style.display = 'none';
+  } else {
+    preview.style.display = 'none';
+    emojiPreview.style.display = 'block';
+    emojiPreview.textContent = emojiVal;
+  }
+  document.getElementById('pImgUpload').value = '';
 }
 
 async function saveProduct() {
   const form = document.getElementById('productForm');
+  const btn = event?.target;
+  const originalText = btn ? btn.textContent : '💾 บันทึก';
+  if (btn) { btn.disabled = true; btn.textContent = 'กำลังบันทึก...'; }
+
+  let emojiVal = document.getElementById('pEmoji').value;
+  const fileInput = document.getElementById('pImgUpload');
+  if (fileInput && fileInput.files && fileInput.files.length > 0) {
+    const file = fileInput.files[0];
+    const ext = file.name.split('.').pop();
+    const fileName = `product_${Date.now()}.${ext}`;
+    const { data: uploadData, error: uploadError } = await db.storage.from('slips').upload(fileName, file);
+    if (!uploadError) {
+      const { data: publicUrl } = db.storage.from('slips').getPublicUrl(fileName);
+      emojiVal = publicUrl.publicUrl;
+      document.getElementById('pEmoji').value = emojiVal;
+    } else {
+      console.error('Upload Error:', uploadError);
+      showToast('อัปโหลดรูปภาพไม่สำเร็จ ใช้รูปเดิม', 'warning');
+    }
+  }
+
   const data = {
     name: document.getElementById('pName').value.trim(),
     price: parseInt(document.getElementById('pPrice').value),
-    category: document.getElementById('pCategory').value,
-    emoji: document.getElementById('pEmoji').value,
+    category: 'เครื่องดื่ม', // Default category since we removed selection
+    emoji: emojiVal,
     desc: document.getElementById('pDesc').value.trim(),
     status: document.getElementById('pStatus').value
   };
-  if (!data.name || !data.price) { showToast('กรุณากรอกข้อมูลให้ครบ', 'error'); return; }
+  if (!data.name || !data.price) { showToast('กรุณากรอกข้อมูลให้ครบ', 'error'); if (btn) { btn.disabled = false; btn.textContent = originalText; } return; }
   const editId = form.dataset.editId;
   if (editId) { await DataStore.updateProduct(editId, data); showToast('แก้ไขสินค้าสำเร็จ', 'success'); }
   else { await DataStore.addProduct(data); showToast('เพิ่มสินค้าสำเร็จ', 'success'); }
   closeProductModal();
   await renderProductsTable();
+  if (btn) { btn.disabled = false; btn.textContent = originalText; }
 }
 
 async function deleteProduct(id) {
@@ -629,13 +754,16 @@ function openEmployeeModal(emp = null) {
     title.textContent = 'แก้ไขข้อมูลพนักงาน';
     document.getElementById('empName').value = emp.name;
     document.getElementById('empUsername').value = emp.username;
+    document.getElementById('empUsername').disabled = true; // Cannot change username
     document.getElementById('empEmail').value = emp.email || '';
     document.getElementById('empPhone').value = emp.phone || '';
+    document.getElementById('empLineId').value = emp.line_id || '';
     passInput.required = false;
     passHint.style.display = 'block';
   } else {
     form.dataset.editId = '';
     title.textContent = 'เพิ่มพนักงานใหม่';
+    document.getElementById('empUsername').disabled = false;
     passInput.required = true;
     passHint.style.display = 'none';
   }
@@ -652,6 +780,7 @@ async function saveEmployee() {
     username: document.getElementById('empUsername').value.trim(),
     email: document.getElementById('empEmail').value.trim(),
     phone: document.getElementById('empPhone').value.trim(),
+    line_id: document.getElementById('empLineId').value.trim(),
     role: 'employee'
   };
 
@@ -690,9 +819,11 @@ async function initProfile() {
   document.getElementById('profEmail').value = user.email || '';
   document.getElementById('profPhone').value = user.phone || '';
   document.getElementById('profUsername').value = user.username || '';
+  const lineInput = document.getElementById('profLine');
+  if (lineInput) lineInput.value = user.line_id || '';
 
   const avatarEl = document.getElementById('profAvatar');
-  if (avatarEl) avatarEl.textContent = getInitials(user.name);
+  if (avatarEl) avatarEl.textContent = user.name;
 
   document.getElementById('profileForm').addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -702,6 +833,7 @@ async function initProfile() {
       name: document.getElementById('profName').value.trim(),
       email: document.getElementById('profEmail').value.trim(),
       phone: document.getElementById('profPhone').value.trim(),
+      line_id: document.getElementById('profLine')?.value.trim() || '',
     };
     const newPass = document.getElementById('profNewPass')?.value;
     if (newPass) data.password = newPass;
@@ -757,7 +889,7 @@ function renderCustomerMenu() {
   const grid = document.getElementById('menuGrid');
   grid.innerHTML = products.map(p => `
     <div class="card product-card animate-scale-in" onclick="addToCustomerCart('${p.id}')" style="cursor:pointer">
-      <div class="product-img">${p.emoji || '🍹'}</div>
+      <div class="product-img">${getProductMedia(p.emoji)}</div>
       <div class="product-name">${p.name}</div>
       <div class="product-price">${formatCurrency(p.price)}</div>
       <div style="margin-top:var(--sp-sm);color:var(--text-secondary);font-size:var(--font-xs);">${p.description || ''}</div>
@@ -806,14 +938,14 @@ function renderCustomerCart() {
   } else {
     itemsEl.innerHTML = customerCart.map(i => `
       <div class="cart-item">
-        <div class="item-img">${i.emoji || '🍹'}</div>
+        <div class="item-img">${getProductMedia(i.emoji)}</div>
         <div class="item-details">
           <div class="item-name">${i.name}</div>
           <div class="item-price">${formatCurrency(i.price)}</div>
         </div>
         <div class="item-qty">
           <button onclick="updateCustomerQty('${i.productId}',-1)">−</button>
-          <span>${i.qty}</span>
+          <span onclick="promptCustomerQty('${i.productId}', ${i.qty})">${i.qty}</span>
           <button onclick="updateCustomerQty('${i.productId}',1)">+</button>
         </div>
         <button class="item-remove" onclick="removeCustomerItem('${i.productId}')">✕</button>
@@ -845,10 +977,21 @@ async function placeCustomerOrder() {
     return;
   }
 
+  const slipFileCash = document.getElementById('custSlipUpload')?.files?.[0];
+  if (!slipFileCash && paymentMethod !== 'promptpay') {
+    showToast('กรุณาแนบรูปภาพก่อนทำการสั่งซื้อ', 'warning');
+    return;
+  }
+
   await executeCustomerOrder('cash');
 }
 
 async function confirmCustPromptpayOrder() {
+  const slipFile = document.getElementById('custSlipUpload')?.files?.[0];
+  if (!slipFile) {
+    showToast('กรุณาแนบสลิปโอนเงินก่อนทำการสั่งซื้อ', 'warning');
+    return;
+  }
   const btn = document.querySelector('#custPromptpayModal .btn-primary');
   btn.disabled = true; btn.textContent = 'กำลังบันทึก...';
   await executeCustomerOrder('promptpay');
@@ -863,19 +1006,41 @@ function closeCustPromptpayModal() {
 async function executeCustomerOrder(paymentMethod) {
   const user = await Auth.getCurrentUser();
   const total = customerCart.reduce((s, i) => s + i.price * i.qty, 0);
+
+  const slipFile = document.getElementById('custSlipUpload')?.files?.[0];
+  let slipUrl = null;
+
+  if (slipFile) {
+    const fileExt = slipFile.name.split('.').pop();
+    const fileName = `cust-${Date.now()}.${fileExt}`;
+    const { data: uploadData, error: uploadError } = await db.storage.from('slips').upload(fileName, slipFile);
+    if (!uploadError) {
+      const { data: publicUrl } = db.storage.from('slips').getPublicUrl(fileName);
+      slipUrl = publicUrl.publicUrl;
+    }
+  }
+
   const order = await DataStore.addOrder({
     items: customerCart.map(i => ({ ...i })),
     total,
     paymentMethod,
     status: 'pending',
     customerId: user.id,
-    employeeId: null
+    employeeId: null,
+    slip_url: slipUrl
   });
 
   if (!order) { showToast('เกิดข้อผิดพลาด กรุณาลองใหม่', 'error'); return; }
   customerCart = [];
   sessionStorage.removeItem('customer_cart');
   renderCustomerCart();
+
+  // Clear the slip upload input
+  const slipInput = document.getElementById('custSlipUpload');
+  if (slipInput) slipInput.value = '';
+  const slipCanvas = document.getElementById('custSlipPreviewCanvas');
+  if (slipCanvas) slipCanvas.innerHTML = '';
+
   showToast(`สั่งซื้อสำเร็จ! #${order.id}`, 'success');
   renderCustomerMenu();
 }
@@ -898,17 +1063,43 @@ async function initCustomerOrders() {
         ${statusBadge(o.status)}
       </div>
       <div class="order-items-list">
-        ${o.items.map(i => `<div class="order-item-row"><span>${i.emoji || ''} ${i.name} × ${i.qty}</span><span>${formatCurrency(i.price * i.qty)}</span></div>`).join('')}
+        ${o.items.map(i => `<div class="order-item-row"><span>${getProductMedia(i.emoji, true)} ${i.name} × ${i.qty}</span><span>${formatCurrency(i.price * i.qty)}</span></div>`).join('')}
       </div>
       <div style="display:flex;justify-content:space-between;align-items:center;margin-top:.75rem;padding-top:.75rem;border-top:2px solid var(--border-light)">
         <div style="display:flex;flex-direction:column;gap:.25rem">
           <span style="color:var(--text-secondary);font-size:.85rem">${formatDate(o.createdAt)}</span>
           <strong style="font-size:1.1rem;color:var(--primary)">${formatCurrency(o.total)}</strong>
         </div>
-        <button class="btn btn-sm btn-outline" onclick="openReceiptModal('${o.id}')">🧾 ดูบิล</button>
+        </div>
+        <div style="display:flex;gap:.5rem">
+          <button class="btn btn-sm btn-outline" onclick="openReceiptModal('${o.id}')">🧾 บิล</button>
+          ${o.slip_url ? `<button class="btn btn-sm btn-outline" onclick="viewSlip('${o.slip_url}')">🖼️ สลิป</button>` : ''}
+        </div>
       </div>
     </div>
   `).join('');
+}
+
+function viewSlip(url) {
+  const modal = document.createElement('div');
+  modal.className = 'modal-overlay active';
+  modal.style.zIndex = '3000';
+  modal.innerHTML = `
+    <div class="modal" style="max-width:500px">
+      <div class="modal-header">
+        <h3>🖼️ หลักฐานการโอนเงิน</h3>
+        <button class="modal-close" onclick="this.closest('.modal-overlay').remove()">×</button>
+      </div>
+      <div class="modal-body text-center">
+        <img src="${url}" style="max-width:100%;border-radius:var(--radius-lg);box-shadow:var(--shadow-md)" alt="Slip">
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-primary btn-block" onclick="this.closest('.modal-overlay').remove()">ปิดหน้าต่าง</button>
+      </div>
+    </div>
+  `;
+  modal.addEventListener('click', (e) => { if (e.target === modal) modal.remove(); });
+  document.body.appendChild(modal);
 }
 
 /* ===== PromptPay Utilities ===== */
@@ -964,6 +1155,11 @@ async function openReceiptModal(orderId) {
       </div>
       <div style="font-size:.9rem;text-align:left;margin-bottom:1rem;color:#666">
         ออเดอร์: <span style="font-weight:600;color:#333">#${order.id}</span>
+        ${order.customerId || order.customer_id ? `
+          <div style="margin-top:.25rem">ลูกค้า: <span style="font-weight:600;color:#333">${orderProfilesCache[order.customerId || order.customer_id] || 'ลูกค้าทั่วไป'}</span></div>
+          <div style="font-size:.8rem">เบอร์โทร: <span style="font-weight:600;color:#333">${(await DataStore.getUser(order.customerId || order.customer_id))?.phone || '-'}</span></div>
+          <div style="font-size:.8rem">Line ID: <span style="font-weight:600;color:#333">${(await DataStore.getUser(order.customerId || order.customer_id))?.line_id || '-'}</span></div>
+        ` : ''}
       </div>
       <div style="text-align:left;font-size:.9rem;margin-bottom:1rem">
         <table style="width:100%;border-collapse:collapse">
@@ -1051,6 +1247,14 @@ async function initReports() {
 
   document.getElementById('reportMonth')?.addEventListener('change', onCustomChange);
   document.getElementById('reportYear')?.addEventListener('change', onCustomChange);
+
+  const reportDate = document.getElementById('reportDate');
+  if (reportDate) {
+    reportDate.addEventListener('change', () => {
+      document.querySelectorAll('.report-period-btn').forEach(b => b.classList.remove('active'));
+      renderReports('single-date');
+    });
+  }
 }
 
 async function renderReports(mode) {
@@ -1063,6 +1267,11 @@ async function renderReports(mode) {
   if (mode === 'day') {
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     filteredOrders = completedOrders.filter(o => new Date(o.createdAt) >= today);
+  } else if (mode === 'single-date') {
+    const dVal = document.getElementById('reportDate').value;
+    if (dVal) {
+      filteredOrders = completedOrders.filter(o => new Date(o.createdAt).toISOString().split('T')[0] === dVal);
+    }
   } else if (mode === 'month') {
     const thisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
     filteredOrders = completedOrders.filter(o => new Date(o.createdAt) >= thisMonth);
@@ -1112,13 +1321,13 @@ async function renderReports(mode) {
     const least = productsArray[productsArray.length - 1];
 
     bestEl.innerHTML = `
-      <div style="font-size:3rem;margin-bottom:.5rem">${best.emoji || '🍹'}</div>
+      <div style="font-size:3rem;margin-bottom:.5rem">${getProductMedia(best.emoji)}</div>
       <h3 style="font-size:var(--font-xl)">${best.name}</h3>
       <p style="color:var(--text-secondary);margin-top:.5rem">ขายได้ ${best.qty} แก้ว</p>
     `;
 
     leastEl.innerHTML = `
-      <div style="font-size:3rem;margin-bottom:.5rem">${least.emoji || '🧊'}</div>
+      <div style="font-size:3rem;margin-bottom:.5rem">${getProductMedia(least.emoji)}</div>
       <h3 style="font-size:var(--font-xl)">${least.name}</h3>
       <p style="color:var(--text-secondary);margin-top:.5rem">ขายได้ ${least.qty} แก้ว</p>
     `;
@@ -1167,7 +1376,7 @@ async function renderCustomersTable() {
           <div style="width:32px;height:32px;border-radius:50%;background:var(--primary-bg);color:var(--primary);display:flex;align-items:center;justify-content:center;font-weight:600">${getInitials(c.name)}</div>
           <div>
             <strong>${c.name}</strong><br>
-            <small style="color:var(--text-muted)">${c.username}</small>
+            <small style="color:var(--text-muted)">@${c.username}</small>
           </div>
         </div>
       </td>
@@ -1197,17 +1406,25 @@ async function openCustomerModal(id = null) {
       document.getElementById('custId').value = user.id;
       document.getElementById('custName').value = user.name || '';
       document.getElementById('custUsername').value = user.username || '';
-      document.getElementById('custUsername').readOnly = true;
+      document.getElementById('custUsername').disabled = true; // Cannot change username
       document.getElementById('custPassword').placeholder = 'เว้นว่างไว้หากไม่ต้องการเปลี่ยน';
       document.getElementById('custEmail').value = user.email || '';
       document.getElementById('custPhone').value = user.phone || '';
+      document.getElementById('custLineId').value = user.line_id || '';
     }
   } else {
     document.querySelector('#customerModal h3').textContent = 'เพิ่มลูกค้าใหม่';
     document.getElementById('custId').value = '';
-    document.getElementById('custUsername').readOnly = false;
+    document.getElementById('custName').value = '';
+    document.getElementById('custUsername').value = '';
+    document.getElementById('custUsername').disabled = false;
+    document.getElementById('custEmail').value = '';
+    document.getElementById('custPhone').value = '';
     document.getElementById('custUsername').placeholder = 'สำหรับเข้าสู่ระบบ';
     document.getElementById('custPassword').placeholder = 'ตั้งรหัสผ่าน';
+    document.getElementById('custEmail').value = '';
+    document.getElementById('custPhone').value = '';
+    document.getElementById('custLineId').value = '';
   }
   modal.classList.add('active');
 }
@@ -1224,6 +1441,7 @@ async function saveCustomer() {
   const password = document.getElementById('custPassword').value;
   const email = document.getElementById('custEmail').value.trim();
   const phone = document.getElementById('custPhone').value.trim();
+  const line_id = document.getElementById('custLineId').value.trim();
 
   if (!name || (!id && (!username || !password))) {
     showToast('กรุณากรอกข้อมูลให้ครบถ้วน', 'error');
@@ -1235,7 +1453,7 @@ async function saveCustomer() {
 
   if (id) {
     // Update
-    const updates = { name, email, phone };
+    const updates = { name, email, phone, line_id };
     if (password) updates.password = password;
     await DataStore.updateUser(id, updates);
     showToast('อัปเดตข้อมูลลูกค้าสำเร็จ', 'success');
@@ -1247,7 +1465,7 @@ async function saveCustomer() {
       btn.disabled = false; btn.textContent = '💾 บันทึก';
       return;
     }
-    await DataStore.addUser({ name, username, password, email, phone, role: 'customer' });
+    await DataStore.addUser({ name, username, password, email, phone, line_id, role: 'customer' });
     showToast('เพิ่มลูกค้าใหม่สำเร็จ', 'success');
   }
 
@@ -1284,7 +1502,7 @@ async function openCustomerOrdersModal(customerId, customerName) {
     tbody.innerHTML = orders.map(o => `
       <tr>
         <td><strong>${o.id}</strong></td>
-        <td>${o.items.map(i => `${i.emoji || ''} ${i.name} ×${i.qty}`).join('<br>')}</td>
+        <td>${o.items.map(i => `${getProductMedia(i.emoji, true)} ${i.name} ×${i.qty}`).join('<br>')}</td>
         <td>${formatCurrency(o.total)}</td>
       <td>${paymentMethodLabel(o.payment_method || o.paymentMethod)}</td>
       <td>${formatDate(o.createdAt)}</td>
@@ -1301,6 +1519,34 @@ function closeCustomerOrdersModal() {
   if (modal) modal.classList.remove('active');
 }
 
+function promptQty(productId, current) {
+  const qty = prompt('ระบุจำนวน:', current);
+  if (qty !== null && !isNaN(qty) && qty > 0) {
+    const item = cart.find(i => i.productId === productId);
+    if (item) {
+      item.qty = parseInt(qty);
+      sessionStorage.setItem('pos_cart', JSON.stringify(cart));
+      renderCart();
+    }
+  } else if (qty === '0') {
+    removeCartItem(productId);
+  }
+}
+
+function promptCustomerQty(productId, current) {
+  const qty = prompt('ระบุจำนวน:', current);
+  if (qty !== null && !isNaN(qty) && qty > 0) {
+    const item = customerCart.find(i => i.productId === productId);
+    if (item) {
+      item.qty = parseInt(qty);
+      sessionStorage.setItem('customer_cart', JSON.stringify(customerCart));
+      renderCustomerCart();
+    }
+  } else if (qty === '0') {
+    removeCustomerItem(productId);
+  }
+}
+
 /* ===== Realtime Notifications ===== */
 function initRealtimeNotifications() {
   db.channel('public:orders')
@@ -1309,11 +1555,29 @@ function initRealtimeNotifications() {
       // Show notification
       showToast(`🏮 มีออเดอร์ใหม่ #${order.id}! ยอดรวม ${formatCurrency(order.total)}`, 'info');
 
-      // Play sound
+      // Play sound and voice notification
       try {
-        const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2358/2358-preview.mp3');
+        const audio = new Audio('/sounds/noti.mp3'); // Fixed path to be a web-accessible relative URL
         audio.play().catch(e => console.warn('Audio play blocked:', e));
-      } catch (e) { }
+      } catch (e) { console.warn('Audio setup error:', e); }
+
+      try {
+        if ('speechSynthesis' in window) {
+          const msg = new SpeechSynthesisUtterance("ออเดอร์มาแล้วค่าาา");
+          msg.lang = 'th-TH';
+          msg.pitch = 1.5; // Higher pitch for fun/cheerful tone
+          msg.rate = 1.1;  // Slightly faster
+
+          // Speech synthesis voices are loaded asynchronously in some browsers.
+          // This ensures we get voices if they are already loaded.
+          const voices = window.speechSynthesis.getVoices();
+          const thVoices = voices.filter(v => v.lang.includes('th'));
+          if (thVoices.length > 0) {
+            msg.voice = thVoices.find(v => v.name.toLowerCase().includes('female')) || thVoices[0];
+          }
+          window.speechSynthesis.speak(msg);
+        }
+      } catch (e) { console.error('Voice/Audio error:', e); }
 
       // Auto refresh if on relevant page
       const page = window.location.pathname.split('/').pop() || 'index.html';

@@ -11,7 +11,7 @@
 </head>
 
 <body>
-    <div class="app-layout">
+    <div class="app-container">
         <div id="header"></div>
         <main class="main-content">
             <div class="page-header">
@@ -21,12 +21,13 @@
             </div>
             <div class="page-content">
                 <div class="orders-filters">
-                    <div class="search-box">
+                    <div class="search-box" style="max-width:300px">
                         <span class="search-icon">🔍</span>
-                        <input type="text" id="orderSearch" class="form-input"
-                            placeholder="ค้นหาด้วยเลขที่ หรือ ชื่อสินค้า..." style="padding-left:2.5rem">
+                        <input type="text" id="orderSearch" class="form-input form-input-sm" placeholder="ค้นหา..."
+                            style="padding-left:2.25rem" autocomplete="off" spellcheck="false">
                     </div>
-                    <select id="orderStatus" class="form-input form-select" style="width:auto;min-width:160px">
+                    <select id="orderStatus" class="form-input form-input-sm form-select"
+                        style="width:auto;min-width:140px">
                         <option value="">ทุกสถานะ</option>
                         <option value="completed">✅ เสร็จสิ้น</option>
                         <option value="pending">⏳ รอดำเนินการ</option>

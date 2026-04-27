@@ -15,7 +15,7 @@
     <div class="auth-page">
         <div class="auth-card">
             <div class="auth-logo">
-                <div class="logo-icon">🍹</div>
+                <img src="assets/Logo.png" alt="Logo" class="logo-icon">
                 <h1>สมัครสมาชิก</h1>
                 <p>สร้างบัญชีลูกค้าใหม่</p>
             </div>
@@ -34,7 +34,12 @@
                 </div>
                 <div class="form-group">
                     <label for="regPhone">เบอร์โทรศัพท์</label>
-                    <input type="tel" id="regPhone" class="form-input" placeholder="08x-xxx-xxxx">
+                    <input type="tel" id="regPhone" class="form-input" placeholder="0xxxxxxxx" required
+                        pattern="[0-9]{10}" maxlength="10" minlength="10" title="กรุณากรอกเบอร์โทรศัพท์ 10 หลัก">
+                </div>
+                <div class="form-group">
+                    <label for="regLine">LINE ID</label>
+                    <input type="text" id="regLine" class="form-input" placeholder="ไอดีไลน์ (ถ้ามี)">
                 </div>
                 <div class="form-group">
                     <label for="regPassword">รหัสผ่าน</label>

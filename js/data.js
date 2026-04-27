@@ -80,7 +80,8 @@ const DataStore = {
       payment_method: o.paymentMethod || o.payment_method,
       status: o.status || 'pending',
       customer_id: o.customerId || o.customer_id || null,
-      employee_id: o.employeeId || o.employee_id || null
+      employee_id: o.employeeId || o.employee_id || null,
+      slip_url: o.slip_url || null
     }).select().single();
     if (error) { console.error('addOrder:', error); return null; }
     return { ...data, createdAt: data.created_at, paymentMethod: data.payment_method, customerId: data.customer_id, employeeId: data.employee_id };
@@ -112,14 +113,15 @@ const DataStore = {
 
   async addUser(u) {
     const { data, error } = await db.from('profiles').insert({
-      username: u.username, password: u.password, name: u.name,
-      email: u.email || '', phone: u.phone || '', role: u.role || 'customer'
+      username: u.username.toLowerCase(), password: u.password, name: u.name,
+      email: u.email || '', phone: u.phone || '', line_id: u.line_id || '', role: u.role || 'customer'
     }).select().single();
     if (error) { console.error('addUser:', error); return null; }
     return { ...data, createdAt: data.created_at };
   },
 
   async updateUser(id, updates) {
+    if (updates.username) updates.username = updates.username.toLowerCase();
     const { error } = await db.from('profiles').update(updates).eq('id', id);
     if (error) console.error('updateUser:', error);
   },

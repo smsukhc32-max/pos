@@ -36,7 +36,7 @@ function debounce(fn, delay = 300) {
 
 function getInitials(name) {
     if (!name) return '?';
-    return name.charAt(0).toUpperCase();
+    return name.substring(0, 2); // Use 2 chars for better Thai readability
 }
 
 function paymentMethodLabel(method) {
@@ -45,13 +45,13 @@ function paymentMethodLabel(method) {
 }
 
 function statusLabel(status) {
-    const map = { completed: 'เสร็จสิ้น', pending: 'รอดำเนินการ', cancelled: 'ยกเลิก' };
+    const map = { completed: 'เสร็จสิ้น', pending: 'รอคิว', cancelled: 'ยกเลิก' };
     return map[status] || status;
 }
 
 function statusBadge(status) {
-    const cls = { completed: 'badge-success', pending: 'badge-warning', cancelled: 'badge-danger' };
-    return `<span class="badge ${cls[status] || 'badge-info'}">${statusLabel(status)}</span>`;
+    const cls = { completed: 'completed', pending: 'pending', cancelled: 'cancelled' };
+    return `<span class="badge-status status-${cls[status] || 'info'}">${statusLabel(status)}</span>`;
 }
 
 /* Simple chart bar renderer */
@@ -65,4 +65,19 @@ function renderBarChart(container, data, maxVal) {
       </div>
     </div>
   `).join('');
+}
+
+function getProductMedia(val, isSmall = false) {
+    if (!val) return '🍹';
+    // Check if it's an image path (starts with http, /, ., or assets)
+    if (val.startsWith('http') || val.startsWith('/') || val.startsWith('.') || val.startsWith('assets/')) {
+        const size = isSmall ? '1.5em' : '100%';
+        const borderRadius = isSmall ? '4px' : 'inherit';
+        const objectFit = isSmall ? 'cover' : 'contain';
+        // Use getBasePath() if available to ensure correct relative path from any page
+        const basePath = typeof getBasePath === 'function' ? getBasePath() : '../';
+        const finalUrl = val.startsWith('assets/') ? basePath + val : val;
+        return `<img src="${finalUrl}" style="width:${size}; height:${size}; object-fit:${objectFit}; border-radius:${borderRadius}; vertical-align:middle; display:inline-block;" alt="" class="product-media-img">`;
+    }
+    return val;
 }

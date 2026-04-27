@@ -73,7 +73,7 @@ async function renderSidebar() {
 
   sidebar.innerHTML = `
     <a href="${base}${role}/dashboard.html" class="sidebar-brand">
-      <span class="sidebar-emoji">🍹</span>
+      <img src="${base}assets/Logo.png" alt="Logo" class="sidebar-emoji" style="width: 48px; height: 48px; border-radius: var(--radius-sm); object-fit: contain;">
       <div class="sidebar-brand-text">
         <span>ป้าณาน้ำผลไม้ปั่น</span>
       </div>

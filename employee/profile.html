@@ -11,7 +11,7 @@
 </head>
 
 <body>
-    <div class="app-layout">
+    <div class="app-container">
         <div id="header"></div>
         <main class="main-content">
             <div class="page-header">
@@ -30,7 +30,7 @@
                                     <input type="text" id="profName" class="form-input" required>
                                 </div>
                                 <div class="form-group">
-                                    <label for="profUsername">ชื่อผู้ใช้</label>
+                                    <label for="profUsername">ชื่อผู้ใช้ (ไม่สามารถแก้ไขได้)</label>
                                     <input type="text" id="profUsername" class="form-input" disabled>
                                 </div>
                                 <div class="form-group">
@@ -40,6 +40,10 @@
                                 <div class="form-group">
                                     <label for="profPhone">เบอร์โทรศัพท์</label>
                                     <input type="tel" id="profPhone" class="form-input">
+                                </div>
+                                <div class="form-group">
+                                    <label for="profLine">Line ID</label>
+                                    <input type="text" id="profLine" class="form-input" placeholder="Line ID ของฉัน">
                                 </div>
                                 <div class="form-group full-width">
                                     <label for="profNewPass">เปลี่ยนรหัสผ่าน (เว้นว่างถ้าไม่ต้องการเปลี่ยน)</label>
