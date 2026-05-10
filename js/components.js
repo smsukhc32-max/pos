@@ -50,6 +50,8 @@ async function renderSidebar() {
       <a href="${base}owner/products.html" class="sidebar-nav-link ${current === 'products.html' ? 'active' : ''}">🍹 จัดการสินค้า</a>
       <a href="${base}owner/employees.html" class="sidebar-nav-link ${current === 'employees.html' ? 'active' : ''}">👥 จัดการพนักงาน</a>
       <a href="${base}owner/customers.html" class="sidebar-nav-link ${current === 'customers.html' ? 'active' : ''}">🤝 ข้อมูลลูกค้า</a>
+      <div class="menu-label">📚 คู่มือ</div>
+      <a href="https://heyzine.com/flip-book/7de93951d0.html" target="_blank" class="sidebar-nav-link">📖 คู่มือเจ้าของร้าน</a>
       <div class="menu-label">👤 บัญชี</div>
       <a href="${base}owner/profile.html" class="sidebar-nav-link ${current === 'profile.html' ? 'active' : ''}">⚙️ การตั้งค่าส่วนตัว</a>
     `;
@@ -61,6 +63,8 @@ async function renderSidebar() {
       <a href="${base}employee/orders.html" class="sidebar-nav-link ${current === 'orders.html' ? 'active' : ''}">🧾 ดูออเดอร์ทั้งหมด</a>
       <div class="menu-label">👥 บริการ</div>
       <a href="${base}employee/customers.html" class="sidebar-nav-link ${current === 'customers.html' ? 'active' : ''}">🤝 ข้อมูลลูกค้า</a>
+      <div class="menu-label">📚 คู่มือ</div>
+      <a href="https://online.fliphtml5.com/wjqml/igcp/" target="_blank" class="sidebar-nav-link">📖 คู่มือพนักงาน</a>
       <div class="menu-label">👤 บัญชี</div>
       <a href="${base}employee/profile.html" class="sidebar-nav-link ${current === 'profile.html' ? 'active' : ''}">⚙️ โปรไฟล์ของฉัน</a>
     `;
