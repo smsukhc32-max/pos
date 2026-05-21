@@ -25,7 +25,13 @@
                 <!-- Hero removed, space is now properly managed by Page Header -->
                 <div class="pos-layout">
                     <div class="pos-products">
-                        <h3 class="mb-lg">📋 เมนูทั้งหมด</h3>
+                        <div class="flex flex-wrap items-center justify-between gap-md mb-lg">
+                            <h3 style="margin:0">📋 เมนูทั้งหมด</h3>
+                            <div class="pos-categories" id="custCategories"
+                                style="display:flex; gap:8px; flex-wrap:wrap;">
+                                <button class="cat-btn active" data-cat="all">ทั้งหมด</button>
+                            </div>
+                        </div>
                         <div class="product-grid stagger" id="menuGrid"></div>
                     </div>
 

@@ -26,42 +26,14 @@
                     <div class="card-body report-filters-bar flex items-center gap-md mobile-column">
                         <strong class="text-sm">ช่วงเวลา: </strong>
                         <div class="flex flex-wrap items-center gap-md">
-                            <div class="flex gap-xs">
-                                <button class="btn btn-sm btn-outline active report-period-btn"
-                                    data-mode="day">รายวัน</button>
-                                <button class="btn btn-sm btn-outline report-period-btn"
-                                    data-mode="month">รายเดือนนี้</button>
-                                <button class="btn btn-sm btn-outline report-period-btn"
-                                    data-mode="year">รายปีนี้</button>
-                                <button class="btn btn-sm btn-outline report-period-btn"
-                                    data-mode="all">ทั้งหมด</button>
-                            </div>
-                            <div class="hidden mobile-column" style="height:24px;width:1px;background:var(--border);">
+                            <div class="flex items-center gap-xs">
+                                <span class="text-xs text-muted">จากวันที่:</span>
+                                <input type="date" id="reportStartDate" class="form-input"
+                                    style="width:150px;padding:.25rem .5rem;font-size:var(--font-xs)">
                             </div>
                             <div class="flex items-center gap-xs">
-                                <span class="text-xs text-muted">เลือกเฉพาะ:</span>
-                                <select id="reportMonth" class="form-select"
-                                    style="width:130px;padding:.25rem .5rem;font-size:var(--font-xs)">
-                                    <option value="">ทุกเดือน</option>
-                                    <option value="0">มกราคม</option>
-                                    <option value="1">กุมภาพันธ์</option>
-                                    <option value="2">มีนาคม</option>
-                                    <option value="3">เมษายน</option>
-                                    <option value="4">พฤษภาคม</option>
-                                    <option value="5">มิถุนายน</option>
-                                    <option value="6">กรกฎาคม</option>
-                                    <option value="7">สิงหาคม</option>
-                                    <option value="8">กันยายน</option>
-                                    <option value="9">ตุลาคม</option>
-                                    <option value="10">พฤศจิกายน</option>
-                                    <option value="11">ธันวาคม</option>
-                                </select>
-                                <select id="reportYear" class="form-select"
-                                    style="width:100px;padding:.25rem .5rem;font-size:var(--font-xs)"></select>
-                            </div>
-                            <div class="flex items-center gap-xs">
-                                <span class="text-xs text-muted">หรือ+เลือกวันที่:</span>
-                                <input type="date" id="reportDate" class="form-input"
+                                <span class="text-xs text-muted">ถึงวันที่:</span>
+                                <input type="date" id="reportEndDate" class="form-input"
                                     style="width:150px;padding:.25rem .5rem;font-size:var(--font-xs)">
                             </div>
                         </div>

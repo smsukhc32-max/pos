@@ -81,3 +81,25 @@ function getProductMedia(val, isSmall = false) {
     }
     return val;
 }
+
+function viewProductImage(url, title = 'รูปภาพเมนู') {
+  const modal = document.createElement('div');
+  modal.className = 'modal-overlay active';
+  modal.style.zIndex = '3500';
+  modal.innerHTML = `
+    <div class="modal" style="max-width:450px">
+      <div class="modal-header">
+        <h3>🖼️ ${title}</h3>
+        <button class="modal-close" onclick="this.closest('.modal-overlay').remove()">×</button>
+      </div>
+      <div class="modal-body text-center" style="padding: 1.5rem;">
+        <img src="${url}" style="max-width:100%; max-height: 350px; object-fit: contain; border-radius:var(--radius-lg); box-shadow:var(--shadow-md)" alt="${title}">
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-primary btn-block" onclick="this.closest('.modal-overlay').remove()">ปิดหน้าต่าง</button>
+      </div>
+    </div>
+  `;
+  modal.addEventListener('click', (e) => { if (e.target === modal) modal.remove(); });
+  document.body.appendChild(modal);
+}

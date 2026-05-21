@@ -74,6 +74,16 @@
                         <input type="text" id="pName" class="form-input" placeholder="เช่น น้ำมะม่วงปั่น" required>
                     </div>
                     <div class="form-group">
+                        <label for="pCategory">หมวดหมู่สินค้า</label>
+                        <select id="pCategory" class="form-input form-select" required onchange="onCategoryChange()">
+                            <option value="ผลไม้ปั่น">🍹 ผลไม้ปั่น</option>
+                            <option value="น้ำคั้นสด">🥤 น้ำคั้นสด</option>
+                            <option value="สมูทตี้">🍇 สมูทตี้</option>
+                            <option value="__NEW__">➕ เพิ่มหมวดหมู่ใหม่...</option>
+                        </select>
+                        <input type="text" id="pNewCategory" class="form-input" placeholder="ระบุชื่อหมวดหมู่ใหม่..." style="display:none; margin-top: 8px;">
+                    </div>
+                    <div class="form-group">
                         <label for="pPrice">ราคา (บาท)</label>
                         <input type="number" id="pPrice" class="form-input" placeholder="0" required min="1">
                     </div>
