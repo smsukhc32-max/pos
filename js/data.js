@@ -17,7 +17,9 @@ const DataStore = {
   async addProduct(p) {
     const { data, error } = await db.from('products').insert({
       name: p.name, price: p.price, category: p.category,
-      emoji: p.emoji, description: p.desc || p.description || '', status: p.status || 'active'
+      emoji: p.emoji, description: p.desc || p.description || '', status: p.status || 'active',
+      fruit_addon_enabled: p.fruit_addon_enabled || false,
+      fruit_addon_price: p.fruit_addon_price || 0
     }).select().single();
     if (error) { console.error('addProduct:', error); return null; }
     return data;
@@ -81,10 +83,11 @@ const DataStore = {
       status: o.status || 'pending',
       customer_id: o.customerId || o.customer_id || null,
       employee_id: o.employeeId || o.employee_id || null,
-      slip_url: o.slip_url || null
+      slip_url: o.slip_url || null,
+      note: o.note || null
     }).select().single();
     if (error) { console.error('addOrder:', error); return null; }
-    return { ...data, createdAt: data.created_at, paymentMethod: data.payment_method, customerId: data.customer_id, employeeId: data.employee_id };
+    return { ...data, createdAt: data.created_at, paymentMethod: data.payment_method, customerId: data.customer_id, employeeId: data.employee_id, note: data.note };
   },
 
   async updateOrder(id, updates) {

@@ -151,16 +151,16 @@ async function initOwnerDashboard() {
     <tr>
       <td><strong>${o.id}</strong></td>
       <td>${o.items.map(i => {
-        let text = i.name;
-        if (i.sweetness || (i.options && i.options.length) || i.note) {
-          const parts = [];
-          if (i.sweetness && i.sweetness !== 'หวานปกติ') parts.push(i.sweetness);
-          if (i.options && i.options.length) parts.push(i.options.join(', '));
-          if (i.note) parts.push(i.note);
-          if (parts.length) text += ` (${parts.join('/')})`;
-        }
-        return text;
-      }).join(', ')}</td>
+    let text = i.name;
+    if (i.sweetness || (i.options && i.options.length) || i.note) {
+      const parts = [];
+      if (i.sweetness && i.sweetness !== 'หวานปกติ') parts.push(i.sweetness);
+      if (i.options && i.options.length) parts.push(i.options.join(', '));
+      if (i.note) parts.push(i.note);
+      if (parts.length) text += ` (${parts.join('/')})`;
+    }
+    return text;
+  }).join(', ')}</td>
       <td>${formatCurrency(o.total)}</td>
       <td>${paymentMethodLabel(o.payment_method || o.paymentMethod)}</td>
       <td>${statusBadge(o.status)}</td>
@@ -205,16 +205,16 @@ async function initEmployeeDashboard() {
     <tr>
       <td><strong>${o.id}</strong></td>
       <td>${o.items.map(i => {
-        let text = (getProductMedia(i.emoji, true)) + ' ' + i.name;
-        if (i.sweetness || (i.options && i.options.length) || i.note) {
-          const parts = [];
-          if (i.sweetness && i.sweetness !== 'หวานปกติ') parts.push(i.sweetness);
-          if (i.options && i.options.length) parts.push(i.options.join(', '));
-          if (i.note) parts.push(i.note);
-          if (parts.length) text += ` (${parts.join('/')})`;
-        }
-        return text;
-      }).join(', ')}</td>
+    let text = (getProductMedia(i.emoji, true)) + ' ' + i.name;
+    if (i.sweetness || (i.options && i.options.length) || i.note) {
+      const parts = [];
+      if (i.sweetness && i.sweetness !== 'หวานปกติ') parts.push(i.sweetness);
+      if (i.options && i.options.length) parts.push(i.options.join(', '));
+      if (i.note) parts.push(i.note);
+      if (parts.length) text += ` (${parts.join('/')})`;
+    }
+    return text;
+  }).join(', ')}</td>
       <td>${formatCurrency(o.total)}</td>
       <td>${statusBadge(o.status)}</td>
       <td>${formatDate(o.createdAt)}</td>
@@ -239,7 +239,7 @@ async function initPOS() {
       const activeClass = cat === 'all' ? 'active' : '';
       return `<button class="cat-btn ${activeClass}" data-cat="${cat}">${label}</button>`;
     }).join('');
-    
+
     container.querySelectorAll('.cat-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         container.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
@@ -581,16 +581,18 @@ async function renderOrdersTable() {
     <tr>
       <td><strong>${o.id}</strong>${customerStr}${empStr}</td>
       <td>${o.items.map(i => {
-        let meta = '';
-        if (i.sweetness || (i.options && i.options.length) || i.note) {
-          const parts = [];
-          if (i.sweetness) parts.push(i.sweetness);
-          if (i.options && i.options.length) parts.push(i.options.join(', '));
-          if (i.note) parts.push(`📝 ${i.note}`);
-          meta = `<br><span style="font-size:var(--font-xs);color:var(--text-secondary);padding-left:8px;">↳ ${parts.join(' | ')}</span>`;
-        }
-        return `${getProductMedia(i.emoji, true)} ${i.name} ×${i.qty}${meta}`;
-      }).join('<br>')}</td>
+      let meta = '';
+      if (i.sweetness || (i.options && i.options.length) || i.note) {
+        const parts = [];
+        if (i.sweetness) parts.push(i.sweetness);
+        if (i.options && i.options.length) parts.push(i.options.join(', '));
+        if (i.note) parts.push(`📝 ${i.note}`);
+        meta = `<br><span style="font-size:var(--font-xs);color:var(--text-secondary);padding-left:8px;">↳ ${parts.join(' | ')}</span>`;
+      }
+      return `${getProductMedia(i.emoji, true)} ${i.name} ×${i.qty}${meta}`;
+    }).join('<br>')}
+      ${o.note ? `<div style="margin-top:8px; padding:6px 10px; border-radius:6px; background:#fff8e1; border:1px solid #ffe082; font-size:var(--font-xs); color:#b78103; max-width: 320px; white-space: normal; line-height: 1.4;"><strong>📝 หมายเหตุออเดอร์:</strong> ${o.note}</div>` : ''}
+      </td>
       <td>${formatCurrency(o.total)}</td>
       <td>${paymentMethodLabel(o.payment_method || o.paymentMethod)}</td>
       <td>
@@ -642,6 +644,7 @@ async function renderProductsTable() {
       <td>
         <strong>${p.name}</strong> 
         <span class="badge" style="background:var(--primary-bg);color:var(--primary);font-size:var(--font-xs);padding:2px 6px;border-radius:4px;display:inline-block;margin-left:4px">${p.category || 'ผลไม้ปั่น'}</span>
+        ${p.fruit_addon_enabled ? `<span class="fruit-addon-badge" style="margin-left:4px">🍇 +${p.fruit_addon_price || 0}฿</span>` : ''}
         <br><small style="color:var(--text-muted)">${p.description || ''}</small>
       </td>
       <td><strong>${formatCurrency(p.price)}</strong></td>
@@ -672,12 +675,12 @@ async function openProductModal(product) {
   // Default categories if none exist
   const defaultCats = ['ผลไม้ปั่น', 'น้ำคั้นสด', 'สมูทตี้'];
   const allCats = [...new Set([...defaultCats, ...existingCats])];
-  
-  catSelect.innerHTML = allCats.map(c => `<option value="${c}">${c}</option>`).join('') 
+
+  catSelect.innerHTML = allCats.map(c => `<option value="${c}">${c}</option>`).join('')
     + '<option value="__NEW__">➕ เพิ่มหมวดหมู่ใหม่...</option>';
-  
+
   catSelect.value = product?.category || allCats[0];
-  
+
   // Reset new category input
   const newCatInput = document.getElementById('pNewCategory');
   if (newCatInput) {
@@ -685,11 +688,27 @@ async function openProductModal(product) {
     newCatInput.value = '';
   }
 
+  // Fruit addon fields
+  const fruitToggle = document.getElementById('pFruitAddonEnabled');
+  const fruitPriceInput = document.getElementById('pFruitAddonPrice');
+  const fruitPriceGroup = document.getElementById('fruitAddonPriceGroup');
+  if (fruitToggle) {
+    fruitToggle.checked = product?.fruit_addon_enabled || false;
+    if (fruitPriceInput) fruitPriceInput.value = product?.fruit_addon_price || 0;
+    if (fruitPriceGroup) fruitPriceGroup.style.display = fruitToggle.checked ? 'block' : 'none';
+  }
+
   modal.classList.add('active');
 }
 
 function closeProductModal() {
   document.getElementById('productModal').classList.remove('active');
+}
+
+function toggleFruitAddonPrice() {
+  const enabled = document.getElementById('pFruitAddonEnabled')?.checked;
+  const group = document.getElementById('fruitAddonPriceGroup');
+  if (group) group.style.display = enabled ? 'block' : 'none';
 }
 
 
@@ -783,7 +802,9 @@ async function saveProduct() {
     category: categoryVal,
     emoji: emojiVal,
     desc: document.getElementById('pDesc').value.trim(),
-    status: document.getElementById('pStatus').value
+    status: document.getElementById('pStatus').value,
+    fruit_addon_enabled: document.getElementById('pFruitAddonEnabled')?.checked || false,
+    fruit_addon_price: parseInt(document.getElementById('pFruitAddonPrice')?.value) || 0
   };
   if (!data.name || !data.price) { showToast('กรุณากรอกข้อมูลให้ครบ', 'error'); if (btn) { btn.disabled = false; btn.textContent = originalText; } return; }
   const editId = form.dataset.editId;
@@ -988,7 +1009,7 @@ async function initCustomerMenu() {
       const activeClass = cat === 'all' ? 'active' : '';
       return `<button class="cat-btn ${activeClass}" data-cat="${cat}">${label}</button>`;
     }).join('');
-    
+
     container.querySelectorAll('.cat-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         container.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
@@ -1157,6 +1178,8 @@ async function executeCustomerOrder(paymentMethod) {
     }
   }
 
+  const orderNote = document.getElementById('custOrderNote')?.value?.trim() || '';
+
   const order = await DataStore.addOrder({
     items: customerCart.map(i => ({ ...i })),
     total,
@@ -1164,7 +1187,8 @@ async function executeCustomerOrder(paymentMethod) {
     status: 'pending',
     customerId: user.id,
     employeeId: null,
-    slip_url: slipUrl
+    slip_url: slipUrl,
+    note: orderNote
   });
 
   if (!order) { showToast('เกิดข้อผิดพลาด กรุณาลองใหม่', 'error'); return; }
@@ -1172,11 +1196,13 @@ async function executeCustomerOrder(paymentMethod) {
   sessionStorage.removeItem('customer_cart');
   renderCustomerCart();
 
-  // Clear the slip upload input
+  // Clear the slip upload input and order note
   const slipInput = document.getElementById('custSlipUpload');
   if (slipInput) slipInput.value = '';
   const slipCanvas = document.getElementById('custSlipPreviewCanvas');
   if (slipCanvas) slipCanvas.innerHTML = '';
+  const noteInput = document.getElementById('custOrderNote');
+  if (noteInput) noteInput.value = '';
 
   showToast(`สั่งซื้อสำเร็จ! #${order.id}`, 'success');
   renderCustomerMenu();
@@ -1201,15 +1227,15 @@ async function initCustomerOrders() {
       </div>
       <div class="order-items-list">
         ${o.items.map(i => {
-          let meta = '';
-          if (i.sweetness || (i.options && i.options.length) || i.note) {
-            const parts = [];
-            if (i.sweetness) parts.push(i.sweetness);
-            if (i.options && i.options.length) parts.push(i.options.join(', '));
-            if (i.note) parts.push(`📝 ${i.note}`);
-            meta = `<div style="font-size:var(--font-xs);color:var(--text-secondary);margin-top:2px;padding-left:1.5rem;">↳ ${parts.join(' | ')}</div>`;
-          }
-          return `
+    let meta = '';
+    if (i.sweetness || (i.options && i.options.length) || i.note) {
+      const parts = [];
+      if (i.sweetness) parts.push(i.sweetness);
+      if (i.options && i.options.length) parts.push(i.options.join(', '));
+      if (i.note) parts.push(`📝 ${i.note}`);
+      meta = `<div style="font-size:var(--font-xs);color:var(--text-secondary);margin-top:2px;padding-left:1.5rem;">↳ ${parts.join(' | ')}</div>`;
+    }
+    return `
             <div class="order-item-row" style="flex-direction:column; align-items:stretch; margin-bottom:8px;">
               <div style="display:flex; justify-content:space-between; align-items:center;">
                 <span>${getProductMedia(i.emoji, true)} ${i.name} × ${i.qty}</span>
@@ -1218,8 +1244,9 @@ async function initCustomerOrders() {
               ${meta}
             </div>
           `;
-        }).join('')}
+  }).join('')}
       </div>
+      ${o.note ? `<div style="margin-top:8px; padding:6px 10px; border-radius:6px; background:#fff8e1; border:1px solid #ffe082; font-size:var(--font-xs); color:#b78103; max-width: 100%; white-space: normal; line-height: 1.4;"><strong>📝 หมายเหตุออเดอร์:</strong> ${o.note}</div>` : ''}
       <div style="display:flex;justify-content:space-between;align-items:center;margin-top:.75rem;padding-top:.75rem;border-top:2px solid var(--border-light)">
         <div style="display:flex;flex-direction:column;gap:.25rem">
           <span style="color:var(--text-secondary);font-size:.85rem">${formatDate(o.createdAt)}</span>
@@ -1319,15 +1346,15 @@ async function openReceiptModal(orderId) {
       <div style="text-align:left;font-size:.9rem;margin-bottom:1rem">
         <table style="width:100%;border-collapse:collapse">
           ${order.items.map(i => {
-            let meta = '';
-            if (i.sweetness || (i.options && i.options.length) || i.note) {
-              const parts = [];
-              if (i.sweetness) parts.push(i.sweetness);
-              if (i.options && i.options.length) parts.push(i.options.join(', '));
-              if (i.note) parts.push(i.note);
-              meta = `<div style="font-size:.75rem;color:#888;padding-left:8px;line-height:1.2;">↳ ${parts.join(' | ')}</div>`;
-            }
-            return `
+    let meta = '';
+    if (i.sweetness || (i.options && i.options.length) || i.note) {
+      const parts = [];
+      if (i.sweetness) parts.push(i.sweetness);
+      if (i.options && i.options.length) parts.push(i.options.join(', '));
+      if (i.note) parts.push(i.note);
+      meta = `<div style="font-size:.75rem;color:#888;padding-left:8px;line-height:1.2;">↳ ${parts.join(' | ')}</div>`;
+    }
+    return `
               <tr>
                 <td style="padding:4px 0">
                   <div>${i.name}</div>
@@ -1337,7 +1364,7 @@ async function openReceiptModal(orderId) {
                 <td style="text-align:right;vertical-align:top;padding-top:4px;">${(i.price * i.qty).toFixed(2)}</td>
               </tr>
             `;
-          }).join('')}
+  }).join('')}
         </table>
       </div>
       <div style="border-top:1px dashed #ccc;padding-top:.5rem;display:flex;justify-content:space-between;font-weight:bold;font-size:1.1rem">
@@ -1348,6 +1375,12 @@ async function openReceiptModal(orderId) {
         <span style="color:#666">ชำระโดย:</span>
         <span style="font-weight:600">${paymentMethodLabel(order.payment_method || order.paymentMethod)}</span>
       </div>
+      ${order.note ? `
+      <div style="text-align:left;font-size:.85rem;margin-top:.75rem;border-top:1px dashed #ccc;padding-top:.5rem;">
+        <div style="font-weight:bold;color:#b78103;margin-bottom:2px">📝 หมายเหตุถึงร้านค้า:</div>
+        <div style="background:#fff8e1;padding:6px 10px;border-radius:4px;border:1px solid #ffe082;color:#333;white-space:normal;word-break:break-word;line-height:1.4;">${order.note}</div>
+      </div>
+      ` : ''}
       <div style="margin-top:2rem;font-size:.85rem;color:#666">
         ขอบคุณที่อุดหนุน<br>โอกาสหน้าเชิญใหม่ครับ/ค่ะ
       </div>
@@ -1386,7 +1419,7 @@ async function initReports() {
   if (startInput && endInput) {
     const now = new Date();
     const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
-    
+
     const offset = firstDay.getTimezoneOffset();
     const localFirstDay = new Date(firstDay.getTime() - (offset * 60 * 1000));
     startInput.value = localFirstDay.toISOString().split('T')[0];
@@ -1413,7 +1446,7 @@ async function renderReports() {
   if (startVal && endVal) {
     const start = new Date(startVal + 'T00:00:00');
     const end = new Date(endVal + 'T23:59:59.999');
-    
+
     filteredOrders = completedOrders.filter(o => {
       const orderDate = new Date(o.createdAt);
       return orderDate >= start && orderDate <= end;
@@ -1634,16 +1667,16 @@ async function openCustomerOrdersModal(customerId, customerName) {
       <tr>
         <td><strong>${o.id}</strong></td>
         <td>${o.items.map(i => {
-          let meta = '';
-          if (i.sweetness || (i.options && i.options.length) || i.note) {
-            const parts = [];
-            if (i.sweetness) parts.push(i.sweetness);
-            if (i.options && i.options.length) parts.push(i.options.join(', '));
-            if (i.note) parts.push(`📝 ${i.note}`);
-            meta = `<br><span style="font-size:var(--font-xs);color:var(--text-secondary);padding-left:8px;">↳ ${parts.join(' | ')}</span>`;
-          }
-          return `${getProductMedia(i.emoji, true)} ${i.name} ×${i.qty}${meta}`;
-        }).join('<br>')}</td>
+      let meta = '';
+      if (i.sweetness || (i.options && i.options.length) || i.note) {
+        const parts = [];
+        if (i.sweetness) parts.push(i.sweetness);
+        if (i.options && i.options.length) parts.push(i.options.join(', '));
+        if (i.note) parts.push(`📝 ${i.note}`);
+        meta = `<br><span style="font-size:var(--font-xs);color:var(--text-secondary);padding-left:8px;">↳ ${parts.join(' | ')}</span>`;
+      }
+      return `${getProductMedia(i.emoji, true)} ${i.name} ×${i.qty}${meta}`;
+    }).join('<br>')}</td>
         <td>${formatCurrency(o.total)}</td>
       <td>${paymentMethodLabel(o.payment_method || o.paymentMethod)}</td>
       <td>${formatDate(o.createdAt)}</td>
@@ -1736,10 +1769,10 @@ function initRealtimeNotifications() {
 
 /* ===== Product Customization Modal ===== */
 function openProductCustomizationModal(productId, roleType) {
-  const product = roleType === 'customer' 
-    ? menuProductsCache.find(p => p.id === productId) 
+  const product = roleType === 'customer'
+    ? menuProductsCache.find(p => p.id === productId)
     : posProductsCache.find(p => p.id === productId);
-    
+
   if (!product) return;
 
   let modalOverlay = document.getElementById('productCustomizeModal');
@@ -1790,36 +1823,24 @@ function openProductCustomizationModal(productId, roleType) {
           </div>
         </div>
 
-        <div class="form-group" style="margin-top: 1.5rem;">
-          <label style="display:block; margin-bottom:8px; font-weight:700;">🍹 เพิ่มท็อปปิ้ง / ผสมผลไม้</label>
-          <div style="display:flex; flex-direction:column; gap: 8px;">
-            <label class="addon-option" style="display:flex; align-items:center; gap: 10px; cursor:pointer; padding: 10px; border: 1px solid var(--border-light); border-radius: var(--radius-md); transition: all 0.2s;">
-              <input type="checkbox" class="addonCheck" value="+ เสาวรส" style="width: 18px; height: 18px; accent-color: var(--primary);">
-              <span style="font-size:var(--font-sm); font-weight: 600;">+ เสาวรส</span>
-            </label>
-            <label class="addon-option" style="display:flex; align-items:center; gap: 10px; cursor:pointer; padding: 10px; border: 1px solid var(--border-light); border-radius: var(--radius-md); transition: all 0.2s;">
-              <input type="checkbox" class="addonCheck" value="+ มะพร้าวอ่อน" style="width: 18px; height: 18px; accent-color: var(--primary);">
-              <span style="font-size:var(--font-sm); font-weight: 600;">+ มะพร้าวอ่อน</span>
-            </label>
-            <label class="addon-option" style="display:flex; align-items:center; gap: 10px; cursor:pointer; padding: 10px; border: 1px solid var(--border-light); border-radius: var(--radius-md); transition: all 0.2s;">
-              <input type="checkbox" class="addonCheck" value="+ ไข่มุก" style="width: 18px; height: 18px; accent-color: var(--primary);">
-              <span style="font-size:var(--font-sm); font-weight: 600;">+ ไข่มุก</span>
-            </label>
-            <label class="addon-option" style="display:flex; align-items:center; gap: 10px; cursor:pointer; padding: 10px; border: 1px solid var(--border-light); border-radius: var(--radius-md); transition: all 0.2s;">
-              <input type="checkbox" class="addonCheck" value="+ เจลลี่บุก" style="width: 18px; height: 18px; accent-color: var(--primary);">
-              <span style="font-size:var(--font-sm); font-weight: 600;">+ เจลลี่บุก</span>
-            </label>
-            <div style="display:flex; align-items:center; gap: 8px; padding: 10px; border: 1px solid var(--border-light); border-radius: var(--radius-md);">
-              <span style="font-size:var(--font-sm); font-weight: 600; white-space:nowrap;">+ อื่นๆ:</span>
-              <input type="text" id="customAddon" class="form-input" placeholder="เช่น สตรอว์เบอร์รี่, บลูเบอร์รี่" style="padding: 6px 10px; font-size: var(--font-sm); flex:1;">
-            </div>
+
+
+        ${product.fruit_addon_enabled ? `
+        <div class="fruit-addon-section">
+          <div class="fruit-addon-header">
+            <label>🍇 เพิ่มผลไม้</label>
+            <span class="fruit-addon-price-tag">+${formatCurrency(product.fruit_addon_price || 0)}</span>
+          </div>
+          <label class="addon-option" style="display:flex; align-items:center; gap: 10px; cursor:pointer; padding: 10px; border: 1px solid #ffcc80; border-radius: var(--radius-md); transition: all 0.2s; background:#fff; margin-bottom:10px;">
+            <input type="checkbox" id="fruitAddonCheck" style="width: 18px; height: 18px; accent-color: #ff9800;">
+            <span style="font-size:var(--font-sm); font-weight: 600; color:#e65100;">ต้องการเพิ่มผลไม้ (+${formatCurrency(product.fruit_addon_price || 0)})</span>
+          </label>
+          <div style="margin-top:8px;">
+            <label style="font-size:var(--font-xs) !important; font-weight:600 !important; color:var(--text-secondary) !important; margin-bottom:4px !important;">📝 รายละเอียดเพิ่มเติม (ชนิดผลไม้ / ปริมาณ / คำแนะนำ)</label>
+            <input type="text" id="fruitAddonDetail" class="form-input" placeholder="เช่น สตรอว์เบอร์รี่ เยอะๆ, มะม่วงสุก 2 ชิ้น" style="padding: 8px 12px; font-size: var(--font-sm); border-color:#ffcc80;">
           </div>
         </div>
-
-        <div class="form-group" style="margin-top: 1.5rem;">
-          <label for="customizeNote" style="display:block; margin-bottom:8px; font-weight:700;">📝 หมายเหตุถึงร้านค้า</label>
-          <input type="text" id="customizeNote" class="form-input" placeholder="เช่น ไม่หวานเลย, ไข่มุกแยกต่างหาก เป็นต้น" style="padding: 10px 14px;">
-        </div>
+        ` : ''}
       </div>
       <div class="modal-footer">
         <button class="btn btn-outline" onclick="closeCustomizationModal()">ยกเลิก</button>
@@ -1879,86 +1900,102 @@ function closeCustomizationModal() {
 function confirmCustomization(productId, roleType) {
   const modal = document.getElementById('productCustomizeModal');
   if (!modal) return;
-  
+
   const sweetness = modal.querySelector('input[name="sweetness"]:checked').value;
-  const note = modal.querySelector('#customizeNote').value.trim();
-  
-  // Collect checked addon options
-  const selectedOptions = [];
-  modal.querySelectorAll('.addonCheck:checked').forEach(cb => {
-    selectedOptions.push(cb.value);
-  });
-  // Collect custom addon text
-  const customAddon = modal.querySelector('#customAddon')?.value?.trim();
-  if (customAddon) {
-    selectedOptions.push('+ ' + customAddon);
-  }
-  
+  const note = '';
+
+  const fruitAddonChecked = modal.querySelector('#fruitAddonCheck')?.checked || false;
+  const fruitAddonDetail = modal.querySelector('#fruitAddonDetail')?.value?.trim() || '';
+
+  const selectedOptions = []; // empty for compatibility or we can just pass empty array
+
   if (roleType === 'customer') {
-    executeAddToCustomerCart(productId, sweetness, selectedOptions, note);
+    executeAddToCustomerCart(productId, sweetness, selectedOptions, note, fruitAddonChecked, fruitAddonDetail);
   } else {
-    executeAddToCart(productId, sweetness, selectedOptions, note);
+    executeAddToCart(productId, sweetness, selectedOptions, note, fruitAddonChecked, fruitAddonDetail);
   }
   closeCustomizationModal();
 }
 
-function executeAddToCustomerCart(productId, sweetness, options, note) {
+function executeAddToCustomerCart(productId, sweetness, options, note, fruitAddonChecked = false, fruitAddonDetail = '') {
   const product = menuProductsCache.find(p => p.id === productId);
   if (!product) return;
-  
-  const existing = customerCart.find(i => 
-    i.productId === productId && 
-    i.sweetness === sweetness && 
-    JSON.stringify(i.options) === JSON.stringify(options) && 
-    i.note === note
+
+  const itemPrice = product.price + (fruitAddonChecked ? (product.fruit_addon_price || 0) : 0);
+  const finalOptions = [...options];
+  if (fruitAddonChecked) {
+    if (fruitAddonDetail) {
+      finalOptions.push(`🍇 เพิ่มผลไม้: ${fruitAddonDetail}`);
+    } else {
+      finalOptions.push(`🍇 เพิ่มผลไม้`);
+    }
+  }
+
+  const existing = customerCart.find(i =>
+    i.productId === productId &&
+    i.sweetness === sweetness &&
+    JSON.stringify(i.options) === JSON.stringify(finalOptions) &&
+    i.note === note &&
+    i.price === itemPrice
   );
-  
+
   if (existing) {
     existing.qty++;
   } else {
-    customerCart.push({ 
-      productId, 
-      name: product.name, 
-      price: product.price, 
-      qty: 1, 
+    customerCart.push({
+      productId,
+      name: product.name,
+      price: itemPrice,
+      qty: 1,
       emoji: product.emoji,
       sweetness,
-      options,
+      options: finalOptions,
       note
     });
   }
-  
+
   sessionStorage.setItem('customer_cart', JSON.stringify(customerCart));
   renderCustomerCart();
   showToast(`เพิ่ม ${product.name} ในตะกร้าแล้ว`, 'success');
 }
 
-function executeAddToCart(productId, sweetness, options, note) {
+function executeAddToCart(productId, sweetness, options, note, fruitAddonChecked = false, fruitAddonDetail = '') {
   const product = posProductsCache.find(p => p.id === productId);
   if (!product) return;
-  
-  const existing = cart.find(i => 
-    i.productId === productId && 
-    i.sweetness === sweetness && 
-    JSON.stringify(i.options) === JSON.stringify(options) && 
-    i.note === note
+
+  const itemPrice = product.price + (fruitAddonChecked ? (product.fruit_addon_price || 0) : 0);
+  const finalOptions = [...options];
+  if (fruitAddonChecked) {
+    if (fruitAddonDetail) {
+      finalOptions.push(`🍇 เพิ่มผลไม้: ${fruitAddonDetail}`);
+    } else {
+      finalOptions.push(`🍇 เพิ่มผลไม้`);
+    }
+  }
+
+  const existing = cart.find(i =>
+    i.productId === productId &&
+    i.sweetness === sweetness &&
+    JSON.stringify(i.options) === JSON.stringify(finalOptions) &&
+    i.note === note &&
+    i.price === itemPrice
   );
-  
+
   if (existing) {
     existing.qty++;
   } else {
-    cart.push({ 
-      productId, 
-      name: product.name, 
-      price: product.price, 
-      qty: 1, 
+    cart.push({
+      productId,
+      name: product.name,
+      price: itemPrice,
+      qty: 1,
       emoji: product.emoji,
       sweetness,
-      options,
+      options: finalOptions,
       note
     });
   }
-  
+
   sessionStorage.setItem('pos_cart', JSON.stringify(cart));
   renderCart();
   showToast(`เพิ่ม ${product.name} แล้ว`, 'success');

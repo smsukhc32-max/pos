@@ -22,6 +22,8 @@ CREATE TABLE IF NOT EXISTS products (
   emoji TEXT DEFAULT '🍹',
   description TEXT,
   status TEXT NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'inactive')),
+  fruit_addon_enabled BOOLEAN DEFAULT false,
+  fruit_addon_price INTEGER DEFAULT 0,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
@@ -35,6 +37,7 @@ CREATE TABLE IF NOT EXISTS orders (
   customer_id UUID REFERENCES profiles(id) ON DELETE SET NULL,
   employee_id UUID REFERENCES profiles(id) ON DELETE SET NULL,
   slip_url TEXT,
+  note TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 

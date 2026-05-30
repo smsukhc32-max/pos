@@ -941,3 +941,81 @@
         display: none;
     }
 }
+
+/* ===== Toggle Switch ===== */
+.toggle-switch input:checked + .toggle-slider {
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark)) !important;
+}
+
+.toggle-switch .toggle-slider::before {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    left: 3px;
+    bottom: 3px;
+    background: #fff;
+    border-radius: 50%;
+    transition: .3s;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.toggle-switch input:checked + .toggle-slider::before {
+    transform: translateX(24px);
+}
+
+/* ===== Fruit Addon Badge ===== */
+.fruit-addon-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, #fff3e0, #ffe0b2);
+    color: #e65100;
+    border: 1px solid #ffcc80;
+}
+
+/* ===== Fruit Addon Section in Customization Modal ===== */
+.fruit-addon-section {
+    margin-top: 1.5rem;
+    padding: 1rem;
+    border: 2px solid #ffcc80;
+    border-radius: var(--radius-lg);
+    background: linear-gradient(135deg, #fffde7 0%, #fff9c4 50%, #fff3e0 100%);
+    transition: all 0.3s ease;
+}
+
+.fruit-addon-section:hover {
+    border-color: #ffa726;
+    box-shadow: 0 4px 12px rgba(255,152,0,0.15);
+}
+
+.fruit-addon-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+
+.fruit-addon-header label {
+    font-weight: 700 !important;
+    font-size: var(--font-base) !important;
+    color: var(--text) !important;
+    margin: 0 !important;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.fruit-addon-price-tag {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: var(--font-xs);
+    font-weight: 700;
+    background: linear-gradient(135deg, #ff9800, #f57c00);
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(255,152,0,0.3);
+}
